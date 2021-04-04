@@ -68,31 +68,13 @@ impl <'s> AppState<'s> {
         }
     }
 
-    pub fn delta_time_text(&self, pos: (f32, f32)) -> Text<'s> {
-        let mut delta_time_text = Text::new(
-            format!("{} seconds", self.delta_time).as_str(), 
+    pub fn debug_text(&self, text: String, pos: (f32, f32)) -> Text<'s> {
+        let mut debug_text = Text::new(
+            text.as_str(), 
             &self.font, 
             24);
-        delta_time_text.set_position(pos);
-        delta_time_text
-    }
-
-    pub fn vsync_text(&self, pos: (f32, f32)) -> Text<'s> {
-        let mut vsync_text = Text::new(
-            format!("Vsync {}", self.vsync).as_str(), 
-            &self.font, 
-            24);
-        vsync_text.set_position(pos);
-        vsync_text
-    }
-
-    pub fn fps_text(&self, pos: (f32, f32)) -> Text<'s> {
-        let mut fps_text = Text::new(
-            format!("{:.1} fps", self.fps).as_str(), 
-            &self.font, 
-            24);
-        fps_text.set_position(pos);
-        fps_text
+        debug_text.set_position(pos);
+        debug_text
     }
 
     pub fn toggle_vsync(&mut self) {
@@ -128,9 +110,9 @@ impl <'s> AppState<'s> {
     }
 
     fn debug_stats(&mut self) {
-        let delta = self.delta_time_text((10.0, 10.0));
-        let fps = self.fps_text((10.0, 35.0));
-        let vsync = self.vsync_text((10.0, 60.0));
+        let delta = self.debug_text(format!("{} seconds", self.delta_time), (10.0, 10.0));
+        let fps = self.debug_text(format!("{:.1} fps", self.fps), (10.0, 35.0));
+        let vsync = self.debug_text(format!("Vsync {}", self.vsync), (10.0, 60.0));
         self.push_to_render_queue(Box::new(delta));
         self.push_to_render_queue(Box::new(fps));
         self.push_to_render_queue(Box::new(vsync));
