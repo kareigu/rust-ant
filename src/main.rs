@@ -42,6 +42,7 @@ impl<'s> Drawable for Bullet<'s> {
 
 pub struct AppState<'s> {
     pub delta_time: f64,
+    pub time_elapsed: f64,
     pub fps: f32,
     font: &'s Font,
     window: &'s mut RenderWindow,
@@ -57,6 +58,7 @@ impl <'s> AppState<'s> {
         window.set_vertical_sync_enabled(vsync);
         Self {
             delta_time: 0.0,
+            time_elapsed: 0.0,
             fps: 0.0,
             font,
             window,
@@ -74,6 +76,9 @@ impl <'s> AppState<'s> {
             &self.font, 
             24);
         debug_text.set_position(pos);
+        debug_text.set_fill_color(Color::MAGENTA);
+        debug_text.set_outline_color(Color::BLACK);
+        debug_text.set_outline_thickness(2.5);
         debug_text
     }
 
@@ -86,21 +91,31 @@ impl <'s> AppState<'s> {
         self.delta_time = self.prev_update.elapsed().as_secs_f64();
         self.prev_update = Instant::now();
         self.fps = 1.0 / self.delta_time as f32;
+        self.time_elapsed += self.delta_time;
     }
 
     fn window_clear(&mut self) {
         self.window.clear(self.bg_color);
     }
 
+    pub fn draw_square(&mut self, pos: (f32, f32), rgba: (u8, u8, u8, u8)) {
+        let mut square = RectangleShape::with_size((10., 10.).into());
+        square.set_fill_color(Color::WHITE);
+        square.set_position(pos);
+        square.set_fill_color(Color::rgba(rgba.0, rgba.1, rgba.2, rgba.3));
+        self.push_to_render_queue(Box::new(square));
+    }
+
     pub fn render(&mut self) {
+        self.window_clear();
+
         if self.debug_stats {
             self.debug_stats();
         }
-
-        self.window_clear();
         for drawable in &self.render_queue {
             self.window.draw(drawable.as_ref());
         }
+
         self.window.display();
         self.render_queue = vec![];
     }
@@ -149,7 +164,18 @@ fn main() {
         }
 
         app_state.run_update();
-        app_state.push_to_render_queue(Box::new(Bullet::new()));
+        //app_state.push_to_render_queue(Box::new(Bullet::new()));
+
+        for i in 1..53 {
+            for j in 1..40 {
+                let sin = (f32::sin(app_state.time_elapsed as f32 + i as f32 / 53.0)).powi(2);
+                let opacity: u8 = (sin * 255.0) as u8;
+                //println!("{}", opacity);
+                app_state.draw_square(
+                (15.0 * i as f32, 15.0 * j as f32), 
+                (255, 255, 255, opacity));
+            }
+        }
         app_state.render();
     }
 }
