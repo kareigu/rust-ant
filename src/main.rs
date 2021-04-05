@@ -6,10 +6,10 @@ use sfml::{
 };
 
 mod app_state;
-use app_state::AppState;
+use app_state::{AppState, RenderQueueObject};
 
 mod cell_grid;
-use cell_grid::{Cell, CellState};
+use cell_grid::{Cell, CellState, CellGrid};
 
 fn main() {
     let mut window = RenderWindow::new(
@@ -20,7 +20,8 @@ fn main() {
     );
 
     let font = Font::from_file("assets/FiraSans-Regular.ttf").expect("Couldn't find font file");
-    let mut app_state = AppState::new(&font, &mut window, true);
+    let cell_grid = CellGrid::new(58, 40);
+    let mut app_state = AppState::new(&font, &mut window, &cell_grid, true);
 
 
     loop {
@@ -56,7 +57,6 @@ fn main() {
                 app_state.push_to_render_queue(Box::new(cell));
             }
         } */
-        app_state.push_to_render_queue(Box::new(app_state.cell_grid.clone()));
 
         app_state.render();
     }

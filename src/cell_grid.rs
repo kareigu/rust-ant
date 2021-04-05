@@ -75,7 +75,7 @@ impl <'s> Drawable for CellGrid {
         render_target: &mut dyn RenderTarget,
         _: &RenderStates<'texture, 'shader, 'shader_texture>,
     ) {
-        for rows in self.grid.clone() {
+        for rows in &self.grid {
             for cell in rows {
                 render_target.draw(cell.as_ref());
             }

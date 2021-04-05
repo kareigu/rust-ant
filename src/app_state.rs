@@ -6,6 +6,10 @@ use sfml::graphics::{
 
 use crate::cell_grid::CellGrid;
 
+pub enum RenderQueueObject<'s> {
+    Box(Box<dyn Drawable + 's>),
+    Ref(&'s dyn Drawable),
+}
 
 pub struct AppState<'s> {
     pub delta_time: f64,
@@ -15,16 +19,15 @@ pub struct AppState<'s> {
     pub window: &'s mut RenderWindow,
     pub bg_color: Color,
     prev_update: Instant,
-    render_queue: Vec<Box<dyn Drawable + 's>>,
+    render_queue: Vec<RenderQueueObject<'s>>,
     pub debug_stats: bool,
     vsync: bool,
-    pub cell_grid: CellGrid,
+    pub cell_grid: &'s CellGrid,
 }
 
 impl <'s> AppState<'s> {
-    pub fn new(font: &'s Font, window: &'s mut RenderWindow, vsync: bool) -> AppState<'s> {
+    pub fn new(font: &'s Font, window: &'s mut RenderWindow, cell_grid: &'s CellGrid, vsync: bool) -> AppState<'s> {
         window.set_vertical_sync_enabled(vsync);
-        let cell_grid = CellGrid::new(58, 40);
         Self {
             delta_time: 0.0,
             time_elapsed: 0.0,
@@ -58,10 +61,12 @@ impl <'s> AppState<'s> {
     }
 
     pub fn run_update(&mut self) {
-    self.delta_time = self.prev_update.elapsed().as_secs_f64();
-    self.prev_update = Instant::now();
-    self.fps = 1.0 / self.delta_time as f32;
-    self.time_elapsed += self.delta_time;
+        self.delta_time = self.prev_update.elapsed().as_secs_f64();
+        self.prev_update = Instant::now();
+        self.fps = 1.0 / self.delta_time as f32;
+        self.time_elapsed += self.delta_time;
+
+        self.push_to_render_queue(RenderQueueObject::Ref(self.cell_grid));
     }
 
     fn window_clear(&mut self) {
@@ -73,7 +78,8 @@ impl <'s> AppState<'s> {
         square.set_fill_color(Color::WHITE);
         square.set_position(pos);
         square.set_fill_color(Color::rgba(rgba.0, rgba.1, rgba.2, rgba.3));
-        self.push_to_render_queue(Box::new(square));
+        let render = Box::new(square);
+        self.push_to_render_queue(RenderQueueObject::Box(render));
     }
 
     pub fn render(&mut self) {
@@ -82,8 +88,14 @@ impl <'s> AppState<'s> {
         if self.debug_stats {
             self.debug_stats();
         }
+
         for drawable in &self.render_queue {
-            self.window.draw(drawable.as_ref());
+            use RenderQueueObject::*;
+            match drawable {
+                Box(d) => self.window.draw(d.as_ref()),
+                Ref(d) => self.window.draw(*d),
+            }
+
         }
 
         self.window.display();
@@ -91,7 +103,7 @@ impl <'s> AppState<'s> {
     }
 
 
-    pub fn push_to_render_queue(&mut self, drawable: Box<dyn Drawable + 's>) {
+    pub fn push_to_render_queue(&mut self, drawable: RenderQueueObject<'s> ) {
         self.render_queue.push(drawable);
     }
 
@@ -99,8 +111,8 @@ impl <'s> AppState<'s> {
         let delta = self.debug_text(format!("{} seconds", self.delta_time), (10.0, 10.0));
         let fps = self.debug_text(format!("{:.1} fps", self.fps), (10.0, 35.0));
         let vsync = self.debug_text(format!("Vsync {}", self.vsync), (10.0, 60.0));
-        self.push_to_render_queue(Box::new(delta));
-        self.push_to_render_queue(Box::new(fps));
-        self.push_to_render_queue(Box::new(vsync));
+        self.push_to_render_queue(RenderQueueObject::Box(Box::new(delta)));
+        self.push_to_render_queue(RenderQueueObject::Box(Box::new(fps)));
+        self.push_to_render_queue(RenderQueueObject::Box(Box::new(vsync)));
     }
 }
