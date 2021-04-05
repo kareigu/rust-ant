@@ -65,8 +65,6 @@ impl <'s> AppState<'s> {
         self.prev_update = Instant::now();
         self.fps = 1.0 / self.delta_time as f32;
         self.time_elapsed += self.delta_time;
-
-        self.push_to_render_queue(RenderQueueObject::Ref(self.cell_grid));
     }
 
     fn window_clear(&mut self) {
@@ -84,6 +82,9 @@ impl <'s> AppState<'s> {
 
     pub fn render(&mut self) {
         self.window_clear();
+
+
+        self.push_to_render_queue(RenderQueueObject::Ref(self.cell_grid));
 
         if self.debug_stats {
             self.debug_stats();
