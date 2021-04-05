@@ -109,11 +109,30 @@ impl <'s> AppState<'s> {
     }
 
     fn debug_stats(&mut self) {
+        let mut debug_texts: Vec<sfml::graphics::Text<'_>> = vec![];
         let delta = self.debug_text(format!("{} seconds", self.delta_time), (10.0, 10.0));
         let fps = self.debug_text(format!("{:.1} fps", self.fps), (10.0, 35.0));
         let vsync = self.debug_text(format!("Vsync {}", self.vsync), (10.0, 60.0));
-        self.push_to_render_queue(RenderQueueObject::Box(Box::new(delta)));
-        self.push_to_render_queue(RenderQueueObject::Box(Box::new(fps)));
-        self.push_to_render_queue(RenderQueueObject::Box(Box::new(vsync)));
+
+        debug_texts.push(delta);
+        debug_texts.push(fps);
+        debug_texts.push(vsync);
+
+        match procinfo::pid::stat_self() {
+            Ok(m) => {
+                let vmem = self.debug_text(format!("vmem: {} MB", m.vsize as f64 / 1e+6), (10.0, 85.0));
+                let pid = self.debug_text(format!("pid: {}", m.pid), (10.0, 110.0));
+                debug_texts.push(vmem);
+                debug_texts.push(pid);
+            },
+            Err(e) => {
+                let proc_error = self.debug_text(format!("{:?}", e), (10.0, 85.0));
+                debug_texts.push(proc_error);
+            }
+        }
+
+        for text in debug_texts {
+            self.push_to_render_queue(RenderQueueObject::Box(Box::new(text)));
+        }
     }
 }
