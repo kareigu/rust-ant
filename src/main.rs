@@ -6,21 +6,21 @@ use sfml::{
 };
 
 mod app_state;
-use app_state::{AppState, RenderQueueObject};
+use app_state::{AppState};
 
 mod cell_grid;
-use cell_grid::{Cell, CellState, CellGrid};
+use cell_grid::{CellGrid};
 
 fn main() {
     let mut window = RenderWindow::new(
-        (800, 600),
+        (1280, 960),
         "SFML test",
-        Style::CLOSE,
+        Style::DEFAULT,
         &Default::default(),
     );
 
     let font = Font::from_file("assets/FiraSans-Regular.ttf").expect("Couldn't find font file");
-    let mut cell_grid = CellGrid::new(58, 40);
+    let mut cell_grid = CellGrid::new(85, 64);
     let mut app_state = AppState::new(&font, &mut window, &mut cell_grid, true);
 
 
