@@ -43,7 +43,7 @@ fn main() {
 
         app_state.run_update();
 
-        for i in 1..53 {
+        /* for i in 1..53 {
             for j in 1..40 {
                 let sin = (f32::sin(app_state.time_elapsed as f32 + i as f32 / 53.0)).powi(2);
                 /*let opacity: u8 = (sin * 255.0) as u8;
@@ -55,7 +55,9 @@ fn main() {
                 let cell = Cell::new(state, pos);
                 app_state.push_to_render_queue(Box::new(cell));
             }
-        }
+        } */
+        app_state.push_to_render_queue(Box::new(app_state.cell_grid.clone()));
+
         app_state.render();
     }
 }
