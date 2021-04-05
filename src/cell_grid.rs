@@ -46,7 +46,8 @@ impl <'s> Drawable for Cell {
 
 #[derive(Clone)]
 pub struct CellGrid {
-    pub grid: Vec<Vec<Box<Cell>>>
+    pub grid: Vec<Vec<Box<Cell>>>,
+    pub size: u64,
 }
 
 impl CellGrid {
@@ -65,6 +66,7 @@ impl CellGrid {
 
         Self {
             grid,
+            size: cols as u64 * rows as u64,
         }
     }
 }

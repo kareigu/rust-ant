@@ -131,6 +131,9 @@ impl <'s> AppState<'s> {
             }
         }
 
+        let cell_count = self.debug_text(format!("{} cells", self.cell_grid.size), (10.0, 185.0));
+        debug_texts.push(cell_count);
+
         for text in debug_texts {
             self.push_to_render_queue(RenderQueueObject::Box(Box::new(text)));
         }
