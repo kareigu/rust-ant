@@ -40,6 +40,44 @@ impl<'s> Drawable for Bullet<'s> {
     }
 }
 
+pub enum CellState {
+    Alive,
+    Dead,
+}
+
+pub struct Cell {
+    state: CellState,
+    pos: (f32, f32),
+}
+
+impl Cell {
+    pub fn new(state: CellState, pos: (f32, f32)) -> Cell {
+        Self {
+            state,
+            pos,
+        }
+    }
+}
+
+impl <'s> Drawable for Cell {
+    fn draw<'a: 'shader, 'texture, 'shader, 'shader_texture>(
+        &'a self,
+        render_target: &mut dyn RenderTarget,
+        _: &RenderStates<'texture, 'shader, 'shader_texture>,
+    ) {
+        use CellState::*;
+        let mut square = RectangleShape::with_size((10., 10.).into());
+        let opacity: u8 = match self.state {
+            Alive => 255,
+            Dead => 0,
+        };
+        square.set_fill_color(Color::WHITE);
+        square.set_position(self.pos);
+        square.set_fill_color(Color::rgba(255, 255, 255, opacity));
+        render_target.draw(&square)
+    }
+}
+
 pub struct AppState<'s> {
     pub delta_time: f64,
     pub time_elapsed: f64,
@@ -119,6 +157,7 @@ impl <'s> AppState<'s> {
         self.window.display();
         self.render_queue = vec![];
     }
+    
 
     pub fn push_to_render_queue(&mut self, drawable: Box<dyn Drawable + 's>) {
         self.render_queue.push(drawable);
@@ -162,6 +201,7 @@ fn main() {
                 _ => {}
             }
         }
+        
 
         app_state.run_update();
         //app_state.push_to_render_queue(Box::new(Bullet::new()));
@@ -169,11 +209,14 @@ fn main() {
         for i in 1..53 {
             for j in 1..40 {
                 let sin = (f32::sin(app_state.time_elapsed as f32 + i as f32 / 53.0)).powi(2);
-                let opacity: u8 = (sin * 255.0) as u8;
-                //println!("{}", opacity);
+                /*let opacity: u8 = (sin * 255.0) as u8;
                 app_state.draw_square(
-                (15.0 * i as f32, 15.0 * j as f32), 
-                (255, 255, 255, opacity));
+                (15.0 * i as f32 - 5.0, 15.0 * j as f32 - 5.0), 
+                (255, 255, 255, opacity)); */
+                let pos = (15.0 * i as f32 - 5.0, 15.0 * j as f32 - 5.0);
+                let state = if sin > 0.5 { CellState::Alive } else { CellState::Dead };
+                let cell = Cell::new(state, pos);
+                app_state.push_to_render_queue(Box::new(cell));
             }
         }
         app_state.render();
