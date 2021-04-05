@@ -22,7 +22,7 @@ pub struct AppState<'s> {
     render_queue: Vec<RenderQueueObject<'s>>,
     pub debug_stats: bool,
     vsync: bool,
-    pub cell_grid: &'s CellGrid,
+    pub cell_grid: &'s mut CellGrid,
 }
 
 impl <'s> AppState<'s> {
@@ -83,8 +83,8 @@ impl <'s> AppState<'s> {
     pub fn render(&mut self) {
         self.window_clear();
 
-
-        self.push_to_render_queue(RenderQueueObject::Ref(self.cell_grid));
+        let grid = self.cell_grid.clone();
+        self.push_to_render_queue(RenderQueueObject::Box(Box::new(grid)));
 
         if self.debug_stats {
             self.debug_stats();
@@ -132,7 +132,11 @@ impl <'s> AppState<'s> {
         }
 
         let cell_count = self.debug_text(format!("{} cells", self.cell_grid.size), (10.0, 185.0));
+        let alive_count = self.debug_text(format!("{} alive", self.cell_grid.alive), (10.0, 210.0));
+        let dead_count = self.debug_text(format!("{} dead", self.cell_grid.dead), (10.0, 235.0));
         debug_texts.push(cell_count);
+        debug_texts.push(alive_count);
+        debug_texts.push(dead_count);
 
         for text in debug_texts {
             self.push_to_render_queue(RenderQueueObject::Box(Box::new(text)));

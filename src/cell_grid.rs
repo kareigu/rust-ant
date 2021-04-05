@@ -11,8 +11,8 @@ pub enum CellState {
 
 #[derive(Clone)]
 pub struct Cell {
-    state: CellState,
-    pos: (f32, f32),
+    pub state: CellState,
+    pub pos: (f32, f32),
 }
 
 impl Cell {
@@ -48,6 +48,8 @@ impl <'s> Drawable for Cell {
 pub struct CellGrid {
     pub grid: Vec<Vec<Box<Cell>>>,
     pub size: u64,
+    pub alive: u64,
+    pub dead: u64,
 }
 
 impl CellGrid {
@@ -64,9 +66,43 @@ impl CellGrid {
             grid.push(row);
         }
 
+        let size = cols as u64 * rows as u64;
+
         Self {
             grid,
-            size: cols as u64 * rows as u64,
+            size,
+            alive: size,
+            dead: 0,
+        }
+    }
+
+    pub fn change_state_at_pos(&mut self, pos: (f32, f32), toggle: bool) {
+        for rows in &mut self.grid {
+            for cell in rows {
+                let cell_pos = cell.as_ref().pos;
+
+                let x_range = cell_pos.0-5.0..=cell_pos.0+5.0;
+                let y_range = cell_pos.1-5.0..=cell_pos.1+5.0;
+
+                if x_range.contains(&pos.0) && y_range.contains(&pos.1) {
+                    use CellState::*;
+
+                    match cell.as_ref().state {
+                        Alive => {
+                            self.alive -= 1;
+                            self.dead += 1;
+                            cell.as_mut().state = Dead;
+                        },
+                        Dead => {
+                            if toggle {
+                                self.alive += 1;
+                                self.dead -= 1;
+                                cell.as_mut().state = Alive;
+                            }
+                        }
+                    }
+                }
+            }
         }
     }
 }
