@@ -1,45 +1,13 @@
 use sfml::{
     graphics::{
-        CircleShape, Color, Drawable, RectangleShape, RenderStates, RenderTarget, RenderWindow,
-        Shape, Transformable, Text, Font
+        Color, Drawable, RectangleShape, RenderStates, RenderTarget, RenderWindow,
+        Shape, Transformable, Font
     },
     window::{Event, Key, Style},
-    SfBox
 };
 
 mod app_state;
 use app_state::AppState;
-
-/// Our custom drawable type. It looks like a bullet.
-struct Bullet<'s> {
-    head: CircleShape<'s>,
-    torso: RectangleShape<'s>,
-}
-
-impl<'s> Bullet<'s> {
-    pub fn new() -> Self {
-        let mut head = CircleShape::new(50.0, 50);
-        head.set_position((100.0, 100.0));
-        head.set_fill_color(Color::RED);
-        let mut torso = RectangleShape::with_size((100., 200.).into());
-        torso.set_position((100.0, 150.0));
-        torso.set_fill_color(Color::BLUE);
-
-        Self { head, torso }
-    }
-}
-
-// Implement the Drawable trait for our custom drawable.
-impl<'s> Drawable for Bullet<'s> {
-    fn draw<'a: 'shader, 'texture, 'shader, 'shader_texture>(
-        &'a self,
-        render_target: &mut dyn RenderTarget,
-        _: &RenderStates<'texture, 'shader, 'shader_texture>,
-    ) {
-        render_target.draw(&self.head);
-        render_target.draw(&self.torso)
-    }
-}
 
 pub enum CellState {
     Alive,
@@ -110,7 +78,6 @@ fn main() {
         
 
         app_state.run_update();
-        //app_state.push_to_render_queue(Box::new(Bullet::new()));
 
         for i in 1..53 {
             for j in 1..40 {
