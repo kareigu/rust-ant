@@ -26,7 +26,7 @@ pub struct AppState<'s> {
 }
 
 impl <'s> AppState<'s> {
-    pub fn new(font: &'s Font, window: &'s mut RenderWindow, cell_grid: &'s CellGrid, vsync: bool) -> AppState<'s> {
+    pub fn new(font: &'s Font, window: &'s mut RenderWindow, cell_grid: &'s mut CellGrid, vsync: bool) -> AppState<'s> {
         window.set_vertical_sync_enabled(vsync);
         Self {
             delta_time: 0.0,

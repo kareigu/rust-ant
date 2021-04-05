@@ -20,8 +20,8 @@ fn main() {
     );
 
     let font = Font::from_file("assets/FiraSans-Regular.ttf").expect("Couldn't find font file");
-    let cell_grid = CellGrid::new(58, 40);
-    let mut app_state = AppState::new(&font, &mut window, &cell_grid, true);
+    let mut cell_grid = CellGrid::new(58, 40);
+    let mut app_state = AppState::new(&font, &mut window, &mut cell_grid, true);
 
 
     loop {
@@ -43,20 +43,6 @@ fn main() {
         
 
         app_state.run_update();
-
-        /* for i in 1..53 {
-            for j in 1..40 {
-                let sin = (f32::sin(app_state.time_elapsed as f32 + i as f32 / 53.0)).powi(2);
-                /*let opacity: u8 = (sin * 255.0) as u8;
-                app_state.draw_square(
-                (15.0 * i as f32 - 5.0, 15.0 * j as f32 - 5.0), 
-                (255, 255, 255, opacity)); */
-                let pos = (15.0 * i as f32 - 5.0, 15.0 * j as f32 - 5.0);
-                let state = if sin > 0.5 { CellState::Alive } else { CellState::Dead };
-                let cell = Cell::new(state, pos);
-                app_state.push_to_render_queue(Box::new(cell));
-            }
-        } */
 
         app_state.render();
     }
