@@ -37,12 +37,17 @@ fn main() {
                 Event::KeyPressed {
                     code: Key::F2, ..
                 } => app_state.toggle_vsync(),
-                Event::MouseMoved {
+                Event::MouseButtonPressed {
+                    button: mouse::Button::LEFT,
                     x, y
                 } => {
                     println!("x: {} y:{}", x, y); 
                     app_state.cell_grid.change_state_at_pos((x as f32, y as f32), false);
                 },
+                Event::MouseButtonPressed {
+                    button: mouse::Button::RIGHT,
+                    x, y
+                } => app_state.cell_grid.change_state_at_pos((x as f32, y as f32), true),
                 _ => {}
             }
         }
