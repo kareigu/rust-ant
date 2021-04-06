@@ -77,31 +77,53 @@ impl CellGrid {
     }
 
     pub fn change_state_at_pos(&mut self, pos: (f32, f32), toggle: bool) {
-        for rows in &mut self.grid {
-            for cell in rows {
+        let mut index: Option<(usize, usize)> = None;
+
+        for (i, rows) in self.grid.iter().enumerate() {
+            for (j, cell) in rows.iter().enumerate() {
                 let cell_pos = cell.as_ref().pos;
 
                 let x_range = cell_pos.0-5.0..=cell_pos.0+5.0;
                 let y_range = cell_pos.1-5.0..=cell_pos.1+5.0;
 
                 if x_range.contains(&pos.0) && y_range.contains(&pos.1) {
-                    use CellState::*;
+                    index = Some((i, j));
+                }
+            }
+        }
 
-                    match cell.as_ref().state {
-                        Alive => {
-                            self.alive -= 1;
-                            self.dead += 1;
-                            cell.as_mut().state = Dead;
-                        },
-                        Dead => {
-                            if toggle {
-                                self.alive += 1;
-                                self.dead -= 1;
-                                cell.as_mut().state = Alive;
-                            }
-                        }
+        if let Some(idx) = index {
+            use CellState::*;
+
+            let cell = self.grid[idx.0][idx.1].as_ref();
+
+            match cell.state {
+                Alive => {
+                    &mut self.change_cell_state(idx, Dead);
+                },
+                Dead => {
+                    if toggle {
+                        &mut self.change_cell_state(idx, Alive);
                     }
                 }
+            }
+        }
+
+    }
+
+    fn change_cell_state(&mut self, index: (usize, usize), to: CellState) {
+        use CellState::*;
+
+        self.grid[index.0][index.1].as_mut().state = match to {
+            Alive => {
+                self.alive += 1;
+                self.dead -= 1;
+                Alive
+            },
+            Dead => {
+                self.alive -= 1;
+                self.dead += 1;
+                Dead
             }
         }
     }
