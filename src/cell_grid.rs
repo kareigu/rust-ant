@@ -119,8 +119,8 @@ impl <'s> Drawable for Ant<'s> {
     ) {
         let mut ant = Text::new("@", self.font, 12);
         ant.set_position(self.pos);
-        ant.set_fill_color(Color::WHITE);
-        ant.set_outline_color(Color::BLACK);
+        ant.set_fill_color(Color::RED);
+        ant.set_outline_color(Color::YELLOW);
         ant.set_outline_thickness(1.2);
         render_target.draw(&ant)
     }

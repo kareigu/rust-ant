@@ -6,7 +6,7 @@ use sfml::{
 };
 
 mod app_state;
-use app_state::{AppState, RenderQueueObject};
+use app_state::{AppState};
 
 mod cell_grid;
 use cell_grid::{CellGrid, Ant};
