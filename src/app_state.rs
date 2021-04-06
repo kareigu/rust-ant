@@ -1,15 +1,9 @@
 use std::time::Instant;
 use sfml::graphics::{
-    RenderWindow, Font, Color, Drawable, Text, Transformable, RenderTarget,
-    RectangleShape, Shape,
+    RenderWindow, Font, Color, Text, Transformable, RenderTarget,
 };
 
 use crate::cell_grid::{CellGrid, Ant};
-
-pub enum RenderQueueObject<'s> {
-    Box(Box<dyn Drawable + 's>),
-    Ref(&'s dyn Drawable),
-}
 
 pub struct AppState<'s> {
     pub delta_time: f64,
@@ -19,7 +13,6 @@ pub struct AppState<'s> {
     pub window: &'s mut RenderWindow,
     pub bg_color: Color,
     prev_update: Instant,
-    render_queue: Vec<RenderQueueObject<'s>>,
     pub debug_stats: bool,
     vsync: bool,
     pub cell_grid: Box<CellGrid>,
@@ -44,7 +37,6 @@ impl <'s> AppState<'s> {
             window,
             bg_color: Color::BLACK,
             prev_update: Instant::now(),
-            render_queue: vec![],
             debug_stats: false,
             vsync,
             cell_grid,
@@ -90,15 +82,6 @@ impl <'s> AppState<'s> {
         self.window.clear(self.bg_color);
     }
 
-    pub fn draw_square(&mut self, pos: (f32, f32), rgba: (u8, u8, u8, u8)) {
-        let mut square = RectangleShape::with_size((10., 10.).into());
-        square.set_fill_color(Color::WHITE);
-        square.set_position(pos);
-        square.set_fill_color(Color::rgba(rgba.0, rgba.1, rgba.2, rgba.3));
-        let render = Box::new(square);
-        self.push_to_render_queue(RenderQueueObject::Box(render));
-    }
-
     pub fn render(&mut self) {
         self.window_clear();
 
@@ -112,22 +95,7 @@ impl <'s> AppState<'s> {
             self.debug_stats();
         }
 
-        /* for drawable in &self.render_queue {
-            use RenderQueueObject::*;
-            match drawable {
-                Box(d) => self.window.draw(d.as_ref()),
-                Ref(d) => self.window.draw(*d),
-            }
-
-        } */
-
         self.window.display();
-        //self.render_queue = vec![];
-    }
-
-
-    pub fn push_to_render_queue(&mut self, drawable: RenderQueueObject<'s> ) {
-        self.render_queue.push(drawable);
     }
 
     fn debug_stats(&mut self) {

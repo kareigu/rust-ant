@@ -60,7 +60,6 @@ fn main() {
         
 
         app_state.run_update();
-
         app_state.render();
     }
 }
