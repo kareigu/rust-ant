@@ -24,6 +24,7 @@ pub struct AppState<'s> {
     vsync: bool,
     pub cell_grid: &'s mut CellGrid,
     pub ant: Box<Ant<'s>>,
+    steps: u64,
 }
 
 impl <'s> AppState<'s> {
@@ -48,6 +49,7 @@ impl <'s> AppState<'s> {
             vsync,
             cell_grid,
             ant,
+            steps: 0,
         }
     }
 
@@ -73,17 +75,13 @@ impl <'s> AppState<'s> {
         self.fps = 1.0 / self.delta_time as f32;
         self.time_elapsed += self.delta_time;
 
-        //println!("Time elapsed {}", self.time_elapsed % 1.0 < 0.99);
 
-        if self.time_elapsed % 1.0 > 0.99 {
-            println!("Ant update");
+        let ant_pos = self.ant.pos;
 
-            let ant_pos = self.ant.pos;
+        let cell_state = self.cell_grid.change_state_at_pos(ant_pos, true);
 
-            let cell_state = self.cell_grid.change_state_at_pos(ant_pos, true);
-
-            self.ant.handle_move(cell_state);
-        }
+        self.ant.handle_move(cell_state);
+        self.steps += 1;
 
         self.prev_update = Instant::now();
     }
@@ -161,6 +159,9 @@ impl <'s> AppState<'s> {
         debug_texts.push(cell_count);
         debug_texts.push(alive_count);
         debug_texts.push(dead_count);
+
+        let steps_count = self.debug_text(format!("{} steps", self.steps), (10.0, 265.0));
+        debug_texts.push(steps_count);
 
         for text in debug_texts {
             self.push_to_render_queue(RenderQueueObject::Box(Box::new(text)));
