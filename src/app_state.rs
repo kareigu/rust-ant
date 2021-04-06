@@ -22,7 +22,7 @@ pub struct AppState<'s> {
     render_queue: Vec<RenderQueueObject<'s>>,
     pub debug_stats: bool,
     vsync: bool,
-    pub cell_grid: &'s mut CellGrid,
+    pub cell_grid: Box<CellGrid>,
     pub ant: Box<Ant<'s>>,
     steps: u64,
 }
@@ -31,7 +31,7 @@ impl <'s> AppState<'s> {
     pub fn new(
         font: &'s Font, 
         window: &'s mut RenderWindow, 
-        cell_grid: &'s mut CellGrid, 
+        cell_grid: Box<CellGrid>, 
         vsync: bool,
         ant: Box<Ant<'s>>,
     ) -> AppState<'s> {
@@ -102,27 +102,27 @@ impl <'s> AppState<'s> {
     pub fn render(&mut self) {
         self.window_clear();
 
-        let grid = self.cell_grid.clone();
-        self.push_to_render_queue(RenderQueueObject::Box(Box::new(grid)));
+        let grid = self.cell_grid.as_ref();
+        self.window.draw(grid);
 
-        let ant = self.ant.clone();
-        self.push_to_render_queue(RenderQueueObject::Box(ant));
+        let ant = self.ant.as_ref();
+        self.window.draw(ant);
 
         if self.debug_stats {
             self.debug_stats();
         }
 
-        for drawable in &self.render_queue {
+        /* for drawable in &self.render_queue {
             use RenderQueueObject::*;
             match drawable {
                 Box(d) => self.window.draw(d.as_ref()),
                 Ref(d) => self.window.draw(*d),
             }
 
-        }
+        } */
 
         self.window.display();
-        self.render_queue = vec![];
+        //self.render_queue = vec![];
     }
 
 
@@ -164,7 +164,7 @@ impl <'s> AppState<'s> {
         debug_texts.push(steps_count);
 
         for text in debug_texts {
-            self.push_to_render_queue(RenderQueueObject::Box(Box::new(text)));
+            self.window.draw(&text);
         }
     }
 }

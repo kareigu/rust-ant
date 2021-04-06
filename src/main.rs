@@ -20,12 +20,12 @@ fn main() {
     );
 
     let font = Font::from_file("assets/FiraSans-Regular.ttf").expect("Couldn't find font file");
-    let mut cell_grid = CellGrid::new(85, 64);
+    let cell_grid = Box::new(CellGrid::new(85, 64));
     let ant = Box::new(Ant::new((200.0, 200.0), &font));
     let mut app_state = AppState::new(
         &font, 
         &mut window, 
-        &mut cell_grid, 
+        cell_grid, 
         true,
         ant
     );
