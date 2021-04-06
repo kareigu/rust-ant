@@ -1,6 +1,6 @@
 use sfml::graphics::{
     Color, Drawable, RectangleShape, RenderStates, RenderTarget, 
-    Shape, Transformable, 
+    Shape, Transformable, Text, Font
 };
 
 #[derive(Clone)]
@@ -44,6 +44,89 @@ impl <'s> Drawable for Cell {
     }
 }
 
+#[derive(Clone, Debug)]
+pub enum AntDirection {
+    Up,
+    Right,
+    Down,
+    Left,
+}
+
+#[derive(Clone)]
+pub struct Ant<'s> {
+    dir: AntDirection,
+    next: AntDirection,
+    pub pos: (f32, f32),
+    font: &'s Font,
+}
+
+impl <'s> Ant<'s> {
+    pub fn new(pos: (f32, f32), font: &'s Font) -> Ant<'s> {
+        Self {
+            pos,
+            font,
+            dir: AntDirection::Left,
+            next: AntDirection::Up,
+        }
+    }
+
+    pub fn set_pos(&mut self, pos: (f32, f32)) {
+        self.pos = pos;
+    }
+
+    pub fn handle_move(&mut self, cell_state: CellState) {
+        use AntDirection::*;
+        use CellState::*;
+
+        let curr_pos = self.pos;
+        self.dir = self.next.clone();
+
+        match cell_state {
+            Alive => {
+                println!("Alive: {:?}", self.dir);
+                self.next = match self.dir {
+                    Up => Right,
+                    Right => Down,
+                    Down => Left,
+                    Left => Up,
+                }
+            },
+            Dead => {
+                println!("Dead: {:?}", self.dir);
+                self.next = match self.dir {
+                    Up => Left,
+                    Right => Up,
+                    Down => Right,
+                    Left => Down,
+                }
+            }
+        }
+
+        match self.next {
+            Up => self.set_pos((curr_pos.0, curr_pos.1 - 15.0)),
+            Right => self.set_pos((curr_pos.0 + 15.0, curr_pos.1)),
+            Down => self.set_pos((curr_pos.0, curr_pos.1 + 15.0)),
+            Left => self.set_pos((curr_pos.0 - 15.0, curr_pos.1)),
+        }
+    }
+}
+
+impl <'s> Drawable for Ant<'s> {
+    fn draw<'a: 'shader, 'texture, 'shader, 'shader_texture>(
+        &'a self,
+        render_target: &mut dyn RenderTarget,
+        _: &RenderStates<'texture, 'shader, 'shader_texture>,
+    ) {
+        let mut ant = Text::new("@", self.font, 12);
+        ant.set_position(self.pos);
+        ant.set_fill_color(Color::WHITE);
+        ant.set_outline_color(Color::BLACK);
+        ant.set_outline_thickness(1.2);
+        render_target.draw(&ant)
+    }
+}
+
+
 #[derive(Clone)]
 pub struct CellGrid {
     pub grid: Vec<Vec<Box<Cell>>>,
@@ -59,7 +142,7 @@ impl CellGrid {
             let mut row: Vec<Box<Cell>> = vec![];
             for j in 1..rows {
                 let pos = (15.0 * i as f32 - 5.0, 15.0 * j as f32 - 5.0);
-                let state = CellState::Alive;
+                let state = CellState::Dead;
                 let cell = Cell::new(state, pos);
                 row.push(Box::new(cell));
             }
@@ -71,12 +154,12 @@ impl CellGrid {
         Self {
             grid,
             size,
-            alive: size,
-            dead: 0,
+            alive: 0,
+            dead: size,
         }
     }
 
-    pub fn change_state_at_pos(&mut self, pos: (f32, f32), toggle: bool) {
+    pub fn change_state_at_pos(&mut self, pos: (f32, f32), toggle: bool) -> CellState {
         let mut index: Option<(usize, usize)> = None;
 
         for (i, rows) in self.grid.iter().enumerate() {
@@ -100,13 +183,19 @@ impl CellGrid {
             match cell.state {
                 Alive => {
                     &mut self.change_cell_state(idx, Dead);
+                    Dead
                 },
                 Dead => {
                     if toggle {
                         &mut self.change_cell_state(idx, Alive);
+                        Alive
+                    } else {
+                        Dead
                     }
                 }
             }
+        } else {
+            CellState::Dead
         }
 
     }

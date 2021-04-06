@@ -6,10 +6,10 @@ use sfml::{
 };
 
 mod app_state;
-use app_state::{AppState};
+use app_state::{AppState, RenderQueueObject};
 
 mod cell_grid;
-use cell_grid::{CellGrid};
+use cell_grid::{CellGrid, Ant};
 
 fn main() {
     let mut window = RenderWindow::new(
@@ -21,8 +21,14 @@ fn main() {
 
     let font = Font::from_file("assets/FiraSans-Regular.ttf").expect("Couldn't find font file");
     let mut cell_grid = CellGrid::new(85, 64);
-    let mut app_state = AppState::new(&font, &mut window, &mut cell_grid, true);
-
+    let ant = Box::new(Ant::new((200.0, 200.0), &font));
+    let mut app_state = AppState::new(
+        &font, 
+        &mut window, 
+        &mut cell_grid, 
+        true,
+        ant
+    );
 
     loop {
         while let Some(event) = app_state.window.poll_event() {
@@ -42,12 +48,12 @@ fn main() {
                     x, y
                 } => {
                     println!("x: {} y:{}", x, y); 
-                    app_state.cell_grid.change_state_at_pos((x as f32, y as f32), false);
+                    app_state.ant.set_pos((x as f32, y as f32));
                 },
                 Event::MouseButtonPressed {
                     button: mouse::Button::RIGHT,
                     x, y
-                } => app_state.cell_grid.change_state_at_pos((x as f32, y as f32), true),
+                } => {app_state.cell_grid.change_state_at_pos((x as f32, y as f32 + 1.0), true);},
                 _ => {}
             }
         }

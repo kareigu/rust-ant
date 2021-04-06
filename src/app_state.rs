@@ -4,7 +4,7 @@ use sfml::graphics::{
     RectangleShape, Shape,
 };
 
-use crate::cell_grid::CellGrid;
+use crate::cell_grid::{CellGrid, Ant};
 
 pub enum RenderQueueObject<'s> {
     Box(Box<dyn Drawable + 's>),
@@ -23,10 +23,17 @@ pub struct AppState<'s> {
     pub debug_stats: bool,
     vsync: bool,
     pub cell_grid: &'s mut CellGrid,
+    pub ant: Box<Ant<'s>>,
 }
 
 impl <'s> AppState<'s> {
-    pub fn new(font: &'s Font, window: &'s mut RenderWindow, cell_grid: &'s mut CellGrid, vsync: bool) -> AppState<'s> {
+    pub fn new(
+        font: &'s Font, 
+        window: &'s mut RenderWindow, 
+        cell_grid: &'s mut CellGrid, 
+        vsync: bool,
+        ant: Box<Ant<'s>>,
+    ) -> AppState<'s> {
         window.set_vertical_sync_enabled(vsync);
         Self {
             delta_time: 0.0,
@@ -40,6 +47,7 @@ impl <'s> AppState<'s> {
             debug_stats: false,
             vsync,
             cell_grid,
+            ant,
         }
     }
 
@@ -62,9 +70,22 @@ impl <'s> AppState<'s> {
 
     pub fn run_update(&mut self) {
         self.delta_time = self.prev_update.elapsed().as_secs_f64();
-        self.prev_update = Instant::now();
         self.fps = 1.0 / self.delta_time as f32;
         self.time_elapsed += self.delta_time;
+
+        //println!("Time elapsed {}", self.time_elapsed % 1.0 < 0.99);
+
+        if self.time_elapsed % 1.0 > 0.99 {
+            println!("Ant update");
+
+            let ant_pos = self.ant.pos;
+
+            let cell_state = self.cell_grid.change_state_at_pos(ant_pos, true);
+
+            self.ant.handle_move(cell_state);
+        }
+
+        self.prev_update = Instant::now();
     }
 
     fn window_clear(&mut self) {
@@ -85,6 +106,9 @@ impl <'s> AppState<'s> {
 
         let grid = self.cell_grid.clone();
         self.push_to_render_queue(RenderQueueObject::Box(Box::new(grid)));
+
+        let ant = self.ant.clone();
+        self.push_to_render_queue(RenderQueueObject::Box(ant));
 
         if self.debug_stats {
             self.debug_stats();
