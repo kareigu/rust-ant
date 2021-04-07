@@ -3,6 +3,9 @@ use sfml::graphics::{
     Shape, Transformable, Text, Font
 };
 
+const CELL_SIZE: f32 = 15.0;
+const CELL_PADDING: f32 = CELL_SIZE / 3.0;
+
 #[derive(Clone)]
 pub enum CellState {
     Alive,
@@ -103,10 +106,10 @@ impl <'s> Ant<'s> {
         }
 
         match self.next {
-            Up => self.set_pos((curr_pos.0, curr_pos.1 - 15.0)),
-            Right => self.set_pos((curr_pos.0 + 15.0, curr_pos.1)),
-            Down => self.set_pos((curr_pos.0, curr_pos.1 + 15.0)),
-            Left => self.set_pos((curr_pos.0 - 15.0, curr_pos.1)),
+            Up => self.set_pos((curr_pos.0, curr_pos.1 - CELL_SIZE)),
+            Right => self.set_pos((curr_pos.0 + CELL_SIZE, curr_pos.1)),
+            Down => self.set_pos((curr_pos.0, curr_pos.1 + CELL_SIZE)),
+            Left => self.set_pos((curr_pos.0 - CELL_SIZE, curr_pos.1)),
         }
     }
 }
@@ -141,7 +144,7 @@ impl CellGrid {
         for i in 1..cols {
             let mut row: Vec<Box<Cell>> = vec![];
             for j in 1..rows {
-                let pos = (15.0 * i as f32 - 5.0, 15.0 * j as f32 - 5.0);
+                let pos = (CELL_SIZE * i as f32 - CELL_PADDING, CELL_SIZE * j as f32 - CELL_PADDING);
                 let state = CellState::Dead;
                 let cell = Cell::new(state, pos);
                 row.push(Box::new(cell));
@@ -166,8 +169,8 @@ impl CellGrid {
             for (j, cell) in rows.iter().enumerate() {
                 let cell_pos = cell.as_ref().pos;
 
-                let x_range = cell_pos.0-5.0..=cell_pos.0+5.0;
-                let y_range = cell_pos.1-5.0..=cell_pos.1+5.0;
+                let x_range = cell_pos.0-CELL_PADDING..=cell_pos.0+CELL_PADDING;
+                let y_range = cell_pos.1-CELL_PADDING..=cell_pos.1+CELL_PADDING;
 
                 if x_range.contains(&pos.0) && y_range.contains(&pos.1) {
                     index = Some((i, j));
