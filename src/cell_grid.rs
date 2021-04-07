@@ -86,7 +86,6 @@ impl <'s> Ant<'s> {
 
         match cell_state {
             Alive => {
-                println!("Alive: {:?}", self.dir);
                 self.next = match self.dir {
                     Up => Right,
                     Right => Down,
@@ -95,7 +94,6 @@ impl <'s> Ant<'s> {
                 }
             },
             Dead => {
-                println!("Dead: {:?}", self.dir);
                 self.next = match self.dir {
                     Up => Left,
                     Right => Up,

@@ -50,7 +50,6 @@ fn main() {
                     button: mouse::Button::LEFT,
                     x, y
                 } => {
-                    println!("x: {} y:{}", x, y); 
                     app_state.ant.set_pos((x as f32, y as f32));
                 },
                 Event::MouseButtonPressed {
