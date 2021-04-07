@@ -14,7 +14,7 @@ use cell_grid::{CellGrid, Ant};
 fn main() {
     let mut window = RenderWindow::new(
         (1280, 960),
-        "SFML test",
+        "Rusty Langton's Ant",
         Style::DEFAULT,
         &Default::default(),
     );
