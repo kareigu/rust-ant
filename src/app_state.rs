@@ -109,6 +109,9 @@ impl <'s> AppState<'s> {
 
         if self.debug_stats {
             self.debug_stats();
+        } else {
+            let debug_prompt_text = self.ui_text(format!("F1"), (5.0, 5.0), 30);
+            self.window.draw(&debug_prompt_text);
         }
 
         if !self.running {
@@ -126,7 +129,7 @@ impl <'s> AppState<'s> {
         let mut debug_texts: Vec<sfml::graphics::Text<'_>> = vec![];
         let delta = self.debug_text(format!("{} seconds", self.delta_time), (10.0, 10.0));
         let fps = self.debug_text(format!("{:.1} fps", self.fps), (10.0, 35.0));
-        let vsync = self.debug_text(format!("Vsync {}", self.vsync), (10.0, 60.0));
+        let vsync = self.debug_text(format!("Vsync {}", if self.vsync { "disabled" } else { "enabled" }), (10.0, 60.0));
 
         debug_texts.push(delta);
         debug_texts.push(fps);
@@ -154,6 +157,9 @@ impl <'s> AppState<'s> {
 
         let steps_count = self.debug_text(format!("{} steps", self.steps), (10.0, 265.0));
         debug_texts.push(steps_count);
+
+        let vsync_toggle_info = self.ui_text(format!("F2 to toggle vsync"), (10.0, 920.0), 30);
+        debug_texts.push(vsync_toggle_info);
 
         for text in debug_texts {
             self.window.draw(&text);
