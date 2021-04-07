@@ -19,7 +19,14 @@ fn main() {
         &Default::default(),
     );
 
-    let font = Font::from_file("assets/FiraSans-Regular.ttf").expect("Couldn't find font file");
+
+    let font = match Font::from_file("assets/FiraSans-Regular.ttf") {
+        Some(f) => f,
+        None => {
+            println!("Couldn't load font from the assets folder");
+            std::process::exit(1);
+        }
+    };
     let cell_grid = Box::new(CellGrid::new(85, 64));
     let ant = Box::new(Ant::new((200.0, 200.0), &font));
     let mut app_state = AppState::new(
