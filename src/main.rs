@@ -43,6 +43,9 @@ fn main() {
                 Event::KeyPressed {
                     code: Key::F2, ..
                 } => app_state.toggle_vsync(),
+                Event::KeyPressed {
+                    code: Key::SPACE, ..
+                } => app_state.running = !app_state.running,
                 Event::MouseButtonPressed {
                     button: mouse::Button::LEFT,
                     x, y

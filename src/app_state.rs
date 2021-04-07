@@ -18,6 +18,7 @@ pub struct AppState<'s> {
     pub cell_grid: Box<CellGrid>,
     pub ant: Box<Ant<'s>>,
     steps: u64,
+    pub running: bool,
 }
 
 impl <'s> AppState<'s> {
@@ -42,6 +43,7 @@ impl <'s> AppState<'s> {
             cell_grid,
             ant,
             steps: 0,
+            running: false,
         }
     }
 
@@ -57,6 +59,18 @@ impl <'s> AppState<'s> {
         debug_text
     }
 
+    pub fn ui_text(&self, text: String, pos: (f32, f32), size: u32) -> Text<'s> {
+        let mut ui_text = Text::new(
+            text.as_str(), 
+            &self.font, 
+            size);
+        ui_text.set_position(pos);
+        ui_text.set_fill_color(Color::WHITE);
+        ui_text.set_outline_color(Color::BLACK);
+        ui_text.set_outline_thickness(1.5);
+        ui_text
+    }
+
     pub fn toggle_vsync(&mut self) {
         self.vsync = !self.vsync;
         self.window.set_vertical_sync_enabled(self.vsync);
@@ -68,12 +82,14 @@ impl <'s> AppState<'s> {
         self.time_elapsed += self.delta_time;
 
 
-        let ant_pos = self.ant.pos;
+        if self.running {
+            let ant_pos = self.ant.pos;
 
-        let cell_state = self.cell_grid.change_state_at_pos(ant_pos, true);
-
-        self.ant.handle_move(cell_state);
-        self.steps += 1;
+            let cell_state = self.cell_grid.change_state_at_pos(ant_pos, true);
+    
+            self.ant.handle_move(cell_state);
+            self.steps += 1;
+        }
 
         self.prev_update = Instant::now();
     }
@@ -93,6 +109,14 @@ impl <'s> AppState<'s> {
 
         if self.debug_stats {
             self.debug_stats();
+        }
+
+        if !self.running {
+            let pause_text = self.ui_text(format!("PAUSED"), (540.0, 850.0), 64);
+            let unpause_info_text = self.ui_text(format!("Press spacebar to unpause"), (460.0, 910.0), 32);
+
+            self.window.draw(&pause_text);
+            self.window.draw(&unpause_info_text);
         }
 
         self.window.display();
