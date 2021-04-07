@@ -1,6 +1,6 @@
 [package]
-name = "rust-sfml"
-version = "0.1.0"
+name = "rusty-ant"
+version = "1.0.0"
 authors = ["mxr <eetu.kivelae@gmail.com>"]
 edition = "2018"
 
