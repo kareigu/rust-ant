@@ -180,12 +180,12 @@ impl CellGrid {
 
       match cell.state {
         Alive => {
-          &mut self.change_cell_state(idx, Dead);
+          self.change_cell_state(idx, Dead);
           Dead
         }
         Dead => {
           if toggle {
-            &mut self.change_cell_state(idx, Alive);
+            self.change_cell_state(idx, Alive);
             Alive
           } else {
             Dead
