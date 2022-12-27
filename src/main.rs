@@ -33,22 +33,22 @@ fn main() {
       match event {
         Event::Closed
         | Event::KeyPressed {
-          code: Key::ESCAPE, ..
+          code: Key::Escape, ..
         } => return,
         Event::KeyPressed { code: Key::F1, .. } => app_state.debug_stats = !app_state.debug_stats,
         Event::KeyPressed { code: Key::F2, .. } => app_state.toggle_vsync(),
         Event::KeyPressed {
-          code: Key::SPACE, ..
+          code: Key::Space, ..
         } => app_state.running = !app_state.running,
         Event::MouseButtonPressed {
-          button: mouse::Button::LEFT,
+          button: mouse::Button::Left,
           x,
           y,
         } => {
           app_state.ant.set_pos((x as f32, y as f32));
         }
         Event::MouseButtonPressed {
-          button: mouse::Button::RIGHT,
+          button: mouse::Button::Right,
           x,
           y,
         } => {
