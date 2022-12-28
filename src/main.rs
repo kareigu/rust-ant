@@ -26,17 +26,20 @@ fn main() {
   };
   let cell_grid = Box::new(CellGrid::new(85, 64));
   let ant = Box::new(Ant::new((200.0, 200.0), &font));
-  let mut app_state = AppState::new(&font, &mut window, cell_grid, true, ant);
+
+  let vsync = true;
+  let mut app_state = AppState::new(&font, cell_grid, vsync, ant);
+  window.set_vertical_sync_enabled(vsync);
 
   loop {
-    while let Some(event) = app_state.window.poll_event() {
+    while let Some(event) = window.poll_event() {
       match event {
         Event::Closed
         | Event::KeyPressed {
           code: Key::Escape, ..
         } => return,
         Event::KeyPressed { code: Key::F1, .. } => app_state.debug_stats = !app_state.debug_stats,
-        Event::KeyPressed { code: Key::F2, .. } => app_state.toggle_vsync(),
+        Event::KeyPressed { code: Key::F2, .. } => app_state.toggle_vsync(&mut window),
         Event::KeyPressed {
           code: Key::Space, ..
         } => app_state.running = !app_state.running,
@@ -61,6 +64,6 @@ fn main() {
     }
 
     app_state.run_update();
-    app_state.render();
+    app_state.render(&mut window);
   }
 }

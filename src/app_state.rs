@@ -8,7 +8,6 @@ pub struct AppState<'s> {
   pub time_elapsed: f64,
   pub fps: f32,
   font: &'s Font,
-  pub window: &'s mut RenderWindow,
   pub bg_color: Color,
   prev_update: Instant,
   pub debug_stats: bool,
@@ -22,18 +21,15 @@ pub struct AppState<'s> {
 impl<'s> AppState<'s> {
   pub fn new(
     font: &'s Font,
-    window: &'s mut RenderWindow,
     cell_grid: Box<CellGrid>,
     vsync: bool,
     ant: Box<Ant<'s>>,
   ) -> AppState<'s> {
-    window.set_vertical_sync_enabled(vsync);
     Self {
       delta_time: 0.0,
       time_elapsed: 0.0,
       fps: 0.0,
       font,
-      window,
       bg_color: Color::BLACK,
       prev_update: Instant::now(),
       debug_stats: false,
@@ -63,9 +59,9 @@ impl<'s> AppState<'s> {
     ui_text
   }
 
-  pub fn toggle_vsync(&mut self) {
+  pub fn toggle_vsync(&mut self, window: &mut RenderWindow) {
     self.vsync = !self.vsync;
-    self.window.set_vertical_sync_enabled(self.vsync);
+    window.set_vertical_sync_enabled(self.vsync);
   }
 
   pub fn run_update(&mut self) {
@@ -85,24 +81,20 @@ impl<'s> AppState<'s> {
     self.prev_update = Instant::now();
   }
 
-  fn window_clear(&mut self) {
-    self.window.clear(self.bg_color);
-  }
-
-  pub fn render(&mut self) {
-    self.window_clear();
+  pub fn render(&mut self, window: &mut RenderWindow) {
+    window.clear(self.bg_color);
 
     let grid = self.cell_grid.as_ref();
-    self.window.draw(grid);
+    window.draw(grid);
 
     let ant = self.ant.as_ref();
-    self.window.draw(ant);
+    window.draw(ant);
 
     if self.debug_stats {
-      self.debug_stats();
+      self.debug_stats(window);
     } else {
       let debug_prompt_text = self.ui_text("F1".to_string(), (5.0, 5.0), 30);
-      self.window.draw(&debug_prompt_text);
+      window.draw(&debug_prompt_text);
     }
 
     if !self.running {
@@ -110,14 +102,14 @@ impl<'s> AppState<'s> {
       let unpause_info_text =
         self.ui_text("Press spacebar to unpause".to_string(), (460.0, 910.0), 32);
 
-      self.window.draw(&pause_text);
-      self.window.draw(&unpause_info_text);
+      window.draw(&pause_text);
+      window.draw(&unpause_info_text);
     }
 
-    self.window.display();
+    window.display();
   }
 
-  fn debug_stats(&mut self) {
+  fn debug_stats(&mut self, window: &mut RenderWindow) {
     let mut debug_texts: Vec<sfml::graphics::Text<'_>> = vec![];
     let delta = self.debug_text(format!("{} seconds", self.delta_time), (10.0, 10.0));
     let fps = self.debug_text(format!("{:.1} fps", self.fps), (10.0, 35.0));
@@ -157,7 +149,7 @@ impl<'s> AppState<'s> {
     debug_texts.push(vsync_toggle_info);
 
     for text in debug_texts {
-      self.window.draw(&text);
+      window.draw(&text);
     }
   }
 }
