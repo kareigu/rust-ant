@@ -23,7 +23,7 @@ impl Cell {
   }
 }
 
-impl<'s> Drawable for Cell {
+impl Drawable for Cell {
   fn draw<'a: 'shader, 'texture, 'shader, 'shader_texture>(
     &'a self,
     render_target: &mut dyn RenderTarget,
@@ -124,7 +124,7 @@ impl<'s> Drawable for Ant<'s> {
 
 #[derive(Clone)]
 pub struct CellGrid {
-  pub grid: Vec<Vec<Box<Cell>>>,
+  pub grid: Vec<Vec<Cell>>,
   pub size: u64,
   pub alive: u64,
   pub dead: u64,
@@ -132,9 +132,9 @@ pub struct CellGrid {
 
 impl CellGrid {
   pub fn new(cols: i32, rows: i32) -> CellGrid {
-    let mut grid: Vec<Vec<Box<Cell>>> = vec![];
+    let mut grid: Vec<Vec<Cell>> = vec![];
     for i in 1..cols {
-      let mut row: Vec<Box<Cell>> = vec![];
+      let mut row: Vec<Cell> = vec![];
       for j in 1..rows {
         let pos = (
           CELL_SIZE * i as f32 - CELL_PADDING,
@@ -142,7 +142,7 @@ impl CellGrid {
         );
         let state = CellState::Dead;
         let cell = Cell::new(state, pos);
-        row.push(Box::new(cell));
+        row.push(cell);
       }
       grid.push(row);
     }
@@ -162,7 +162,7 @@ impl CellGrid {
 
     for (i, rows) in self.grid.iter().enumerate() {
       for (j, cell) in rows.iter().enumerate() {
-        let cell_pos = cell.as_ref().pos;
+        let cell_pos = cell.pos;
 
         let x_range = cell_pos.0 - CELL_PADDING..=cell_pos.0 + CELL_PADDING;
         let y_range = cell_pos.1 - CELL_PADDING..=cell_pos.1 + CELL_PADDING;
@@ -176,7 +176,7 @@ impl CellGrid {
     if let Some(idx) = index {
       use CellState::*;
 
-      let cell = self.grid[idx.0][idx.1].as_ref();
+      let cell = &self.grid[idx.0][idx.1];
 
       match cell.state {
         Alive => {
@@ -200,7 +200,7 @@ impl CellGrid {
   fn change_cell_state(&mut self, index: (usize, usize), to: CellState) {
     use CellState::*;
 
-    self.grid[index.0][index.1].as_mut().state = match to {
+    self.grid[index.0][index.1].state = match to {
       Alive => {
         self.alive += 1;
         self.dead -= 1;
@@ -215,7 +215,7 @@ impl CellGrid {
   }
 }
 
-impl<'s> Drawable for CellGrid {
+impl Drawable for CellGrid {
   fn draw<'a: 'shader, 'texture, 'shader, 'shader_texture>(
     &'a self,
     render_target: &mut dyn RenderTarget,
@@ -223,7 +223,7 @@ impl<'s> Drawable for CellGrid {
   ) {
     for rows in &self.grid {
       for cell in rows {
-        render_target.draw(cell.as_ref());
+        render_target.draw(cell);
       }
     }
   }

@@ -46,7 +46,7 @@ impl<'s> AppState<'s> {
   }
 
   pub fn debug_text(&self, text: String, pos: (f32, f32)) -> Text<'s> {
-    let mut debug_text = Text::new(text.as_str(), &self.font, 24);
+    let mut debug_text = Text::new(text.as_str(), self.font, 24);
     debug_text.set_position(pos);
     debug_text.set_fill_color(Color::MAGENTA);
     debug_text.set_outline_color(Color::BLACK);
@@ -55,7 +55,7 @@ impl<'s> AppState<'s> {
   }
 
   pub fn ui_text(&self, text: String, pos: (f32, f32), size: u32) -> Text<'s> {
-    let mut ui_text = Text::new(text.as_str(), &self.font, size);
+    let mut ui_text = Text::new(text.as_str(), self.font, size);
     ui_text.set_position(pos);
     ui_text.set_fill_color(Color::WHITE);
     ui_text.set_outline_color(Color::BLACK);
@@ -101,14 +101,14 @@ impl<'s> AppState<'s> {
     if self.debug_stats {
       self.debug_stats();
     } else {
-      let debug_prompt_text = self.ui_text(format!("F1"), (5.0, 5.0), 30);
+      let debug_prompt_text = self.ui_text("F1".to_string(), (5.0, 5.0), 30);
       self.window.draw(&debug_prompt_text);
     }
 
     if !self.running {
-      let pause_text = self.ui_text(format!("PAUSED"), (540.0, 850.0), 64);
+      let pause_text = self.ui_text("PAUSED".to_string(), (540.0, 850.0), 64);
       let unpause_info_text =
-        self.ui_text(format!("Press spacebar to unpause"), (460.0, 910.0), 32);
+        self.ui_text("Press spacebar to unpause".to_string(), (460.0, 910.0), 32);
 
       self.window.draw(&pause_text);
       self.window.draw(&unpause_info_text);
@@ -153,7 +153,7 @@ impl<'s> AppState<'s> {
     let steps_count = self.debug_text(format!("{} steps", self.steps), (10.0, 265.0));
     debug_texts.push(steps_count);
 
-    let vsync_toggle_info = self.ui_text(format!("F2 to toggle vsync"), (10.0, 920.0), 30);
+    let vsync_toggle_info = self.ui_text("F2 to toggle vsync".to_string(), (10.0, 920.0), 30);
     debug_texts.push(vsync_toggle_info);
 
     for text in debug_texts {
