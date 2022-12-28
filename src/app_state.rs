@@ -111,6 +111,7 @@ impl<'s> AppState<'s> {
 
   fn debug_stats(&mut self, window: &mut RenderWindow) {
     let mut debug_texts: Vec<sfml::graphics::Text<'_>> = vec![];
+    debug_texts.reserve(10);
     let delta = self.debug_text(format!("{} seconds", self.delta_time), (10.0, 10.0));
     let fps = self.debug_text(format!("{:.1} fps", self.fps), (10.0, 35.0));
     let vsync = self.debug_text(
